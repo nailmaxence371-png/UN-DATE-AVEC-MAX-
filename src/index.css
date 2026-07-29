@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Jost', sans-serif;
+  color: #4a3b3d;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: 'Cormorant Garamond', serif;
+}
+
+/* Respect reduced-motion preferences: calm the page down instead of
+   stripping all feedback, so the experience still reads as intentional. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Visible keyboard focus everywhere */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #c9a15a;
+  outline-offset: 3px;
+}
+
+::selection {
+  background: #f6e4e4;
+  color: #4a3b3d;
+}
