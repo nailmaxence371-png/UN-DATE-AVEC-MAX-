@@ -32,15 +32,19 @@ async function sendDiscord(data) {
   const { webhookUrl } = notificationsConfig.discord
   if (!webhookUrl) throw new Error('VITE_DISCORD_WEBHOOK_URL manquant')
 
-  const content = [
+      const content = [
     '💌 **Nouvelle réponse au date !**',
     `**Prénom :** ${data.firstName}`,
     `**A accepté le date :** ${data.dateAccepted}`,
     `**Ballon d'Or Mbappé :** ${data.mbappeAnswer}`,
     `**Date choisie :** ${data.date}`,
     `**Heure choisie :** ${data.time}`,
+    `**Snapchat :** ${data.snapchat || '—'}`,
+    `**Instagram :** ${data.instagram || '—'}`,
     `**Répondu le :** ${data.respondedAt}`,
   ].join('\n')
+
+
 
   await fetch(webhookUrl, {
     method: 'POST',
