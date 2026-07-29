@@ -1,18 +1,5 @@
 import { notificationsConfig } from '../../config/notifications.js'
 
-/**
- * Envoie les informations de la réponse au provider configuré dans
- * config/notifications.js. Ne bloque jamais l'expérience utilisateur :
- * les erreurs sont loguées en console plutôt que remontées à l'écran.
- *
- * @param {{
- *   firstName: string,
- *   dateAccepted: string,
- *   mbappeAnswer: string,
- *   day: string,
- *   slot: string,
- * }} payload
- */
 export async function sendNotification(payload) {
   const data = {
     ...payload,
@@ -50,8 +37,8 @@ async function sendDiscord(data) {
     `**Prénom :** ${data.firstName}`,
     `**A accepté le date :** ${data.dateAccepted}`,
     `**Ballon d'Or Mbappé :** ${data.mbappeAnswer}`,
-    `**Jour choisi :** ${data.day}`,
-    `**Horaire :** ${data.slot}`,
+    `**Date choisie :** ${data.date}`,
+    `**Heure choisie :** ${data.time}`,
     `**Répondu le :** ${data.respondedAt}`,
   ].join('\n')
 
@@ -67,11 +54,7 @@ async function sendEmail(data) {
   if (!serviceId || !templateId || !publicKey) {
     throw new Error('Configuration EmailJS incomplète (voir .env.example)')
   }
-
-  // Importé dynamiquement pour ne pas alourdir le bundle si l'e-mail
-  // n'est pas le provider choisi. Installer avec : npm install @emailjs/browser
   const emailjs = await import('@emailjs/browser')
-
   await emailjs.send(
     serviceId,
     templateId,
@@ -80,8 +63,8 @@ async function sendEmail(data) {
       first_name: data.firstName,
       date_accepted: data.dateAccepted,
       mbappe_answer: data.mbappeAnswer,
-      day: data.day,
-      slot: data.slot,
+      date: data.date,
+      time: data.time,
       responded_at: data.respondedAt,
     },
     { publicKey }
@@ -91,18 +74,15 @@ async function sendEmail(data) {
 async function sendSupabase(data) {
   const { url, anonKey, table } = notificationsConfig.supabase
   if (!url || !anonKey) throw new Error('Configuration Supabase incomplète (voir .env.example)')
-
-  // Installer avec : npm install @supabase/supabase-js
   const { createClient } = await import('@supabase/supabase-js')
   const supabase = createClient(url, anonKey)
-
   const { error } = await supabase.from(table).insert([
     {
       first_name: data.firstName,
       date_accepted: data.dateAccepted,
       mbappe_answer: data.mbappeAnswer,
-      day: data.day,
-      slot: data.slot,
+      chosen_date: data.date,
+      chosen_time: data.time,
       responded_at: data.respondedAt,
     },
   ])
@@ -112,21 +92,17 @@ async function sendSupabase(data) {
 async function sendFirebase(data) {
   const { apiKey, authDomain, projectId, appId, collection } = notificationsConfig.firebase
   if (!apiKey || !projectId) throw new Error('Configuration Firebase incomplète (voir .env.example)')
-
-  // Installer avec : npm install firebase
   const { initializeApp, getApps } = await import('firebase/app')
   const { getFirestore, collection: col, addDoc } = await import('firebase/firestore')
-
   const firebaseConfig = { apiKey, authDomain, projectId, appId }
   const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig)
   const db = getFirestore(app)
-
   await addDoc(col(db, collection), {
     firstName: data.firstName,
     dateAccepted: data.dateAccepted,
     mbappeAnswer: data.mbappeAnswer,
-    day: data.day,
-    slot: data.slot,
+    chosenDate: data.date,
+    chosenTime: data.time,
     respondedAt: data.respondedAt,
   })
 }
