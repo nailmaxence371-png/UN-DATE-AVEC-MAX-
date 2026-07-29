@@ -5,11 +5,10 @@ import Letter from './components/Letter.jsx'
 import Celebration from './components/Celebration.jsx'
 import NameStep from './components/NameStep.jsx'
 import MbappeStep from './components/MbappeStep.jsx'
-import SlotPicker from './components/SlotPicker.jsx'
+import CalendarPicker from './components/CalendarPicker.jsx'
 import Confirmation from './components/Confirmation.jsx'
 import { sendNotification } from './lib/notifications.js'
 
-// Étapes de l'expérience, dans l'ordre.
 const STEPS = {
   ENVELOPE: 'envelope',
   LETTER: 'letter',
@@ -23,27 +22,23 @@ const STEPS = {
 export default function App() {
   const [step, setStep] = useState(STEPS.ENVELOPE)
   const [firstName, setFirstName] = useState('')
-  const [mbappeAnswer, setMbappeAnswer] = useState('')
-  const [selectedSlot, setSelectedSlot] = useState(null)
+  const [selected, setSelected] = useState(null)
 
   const restart = () => {
     setStep(STEPS.ENVELOPE)
     setFirstName('')
-    setMbappeAnswer('')
-    setSelectedSlot(null)
+    setSelected(null)
   }
 
-  const handleSlotSelect = async ({ day, slot }) => {
-    setSelectedSlot({ day, slot })
+  const handleDateTimeSelect = async ({ date, time }) => {
+    setSelected({ date, time })
     setStep(STEPS.CONFIRMATION)
-    // La notification part en arrière-plan : elle ne doit jamais
-    // retarder ni bloquer l'affichage de la confirmation.
     sendNotification({
       firstName,
       dateAccepted: 'Oui',
       mbappeAnswer: 'Oui',
-      day,
-      slot,
+      date,
+      time,
     })
   }
 
@@ -53,13 +48,9 @@ export default function App() {
 
       {step === STEPS.ENVELOPE && <Envelope onOpen={() => setStep(STEPS.LETTER)} />}
 
-      {step === STEPS.LETTER && (
-        <Letter onAccept={() => setStep(STEPS.CELEBRATION)} />
-      )}
+      {step === STEPS.LETTER && <Letter onAccept={() => setStep(STEPS.CELEBRATION)} />}
 
-      {step === STEPS.CELEBRATION && (
-        <Celebration onDone={() => setStep(STEPS.NAME)} />
-      )}
+      {step === STEPS.CELEBRATION && <Celebration onDone={() => setStep(STEPS.NAME)} />}
 
       {step === STEPS.NAME && (
         <NameStep
@@ -72,21 +63,16 @@ export default function App() {
 
       {step === STEPS.MBAPPE && (
         <MbappeStep
-          onResult={(answer) => {
-            setMbappeAnswer(answer)
-            setStep(STEPS.SLOTS)
-          }}
+          onResult={() => setStep(STEPS.SLOTS)}
           onRestart={restart}
         />
       )}
 
       {step === STEPS.SLOTS && (
-        <SlotPicker name={firstName} onSelect={handleSlotSelect} />
+        <CalendarPicker name={firstName} onSelect={handleDateTimeSelect} />
       )}
 
-      {step === STEPS.CONFIRMATION && selectedSlot && (
-        <Confirmation name={firstName} />
-      )}
+      {step === STEPS.CONFIRMATION && selected && <Confirmation name={firstName} />}
     </div>
   )
 }
