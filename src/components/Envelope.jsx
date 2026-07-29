@@ -2,12 +2,13 @@ import { useState } from 'react'
 
 export default function Envelope({ onOpen }) {
   const [opening, setOpening] = useState(false)
+  const [showPhoto, setShowPhoto] = useState(false)
 
   const handleClick = () => {
     if (opening) return
     setOpening(true)
-    // Let the flap + seal animation play before moving to the letter
-    setTimeout(() => onOpen(), 1400)
+    setTimeout(() => setShowPhoto(true), 700)
+    setTimeout(() => onOpen(), 2900)
   }
 
   return (
@@ -25,12 +26,10 @@ export default function Envelope({ onOpen }) {
       >
         {/* Envelope body */}
         <div className="absolute inset-0 rounded-md bg-gradient-to-br from-white to-blush shadow-soft transition-transform duration-500 group-hover:-translate-y-1">
-          {/* bottom triangle fold, purely decorative */}
           <div
             className="absolute inset-x-0 bottom-0 h-1/2 bg-rose/15"
             style={{ clipPath: 'polygon(0 0, 50% 60%, 100% 0, 100% 100%, 0 100%)' }}
           />
-          {/* side folds */}
           <div
             className="absolute inset-y-0 left-0 w-1/2 bg-rose/10"
             style={{ clipPath: 'polygon(0 0, 100% 50%, 0 100%)' }}
@@ -41,13 +40,27 @@ export default function Envelope({ onOpen }) {
           />
         </div>
 
-        {/* Flap: hinges open from the top */}
+        {/* Photo qui sort de l'enveloppe */}
+        <div
+          className="absolute left-1/2 top-1/2 z-20 h-28 w-24 overflow-hidden rounded-xl border-4 border-white bg-white shadow-soft transition-all duration-[1400ms] ease-out sm:h-36 sm:w-28"
+          style={{
+            transform: showPhoto
+              ? 'translate(-50%, -160%) scale(1.5) rotate(-3deg)'
+              : 'translate(-50%, -50%) scale(0.2)',
+            opacity: showPhoto ? 1 : 0,
+          }}
+        >
+          <img src="/photo.JPG" alt="Une photo de moi" className="h-full w-full object-cover" />
+        </div>
+
+        {/* Flap */}
         <div
           className="absolute inset-x-0 top-0 h-1/2 origin-top rounded-t-md bg-gradient-to-b from-rose to-rose-deep shadow-md transition-transform duration-[1100ms] ease-in-out"
           style={{
             clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
             transform: opening ? 'rotateX(180deg)' : 'rotateX(0deg)',
             transformStyle: 'preserve-3d',
+            backfaceVisibility: 'hidden',
           }}
         />
 
