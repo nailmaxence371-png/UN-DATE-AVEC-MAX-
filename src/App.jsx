@@ -30,7 +30,7 @@ export default function App() {
     setSelected(null)
   }
 
-  const handleDateTimeSelect = async ({ date, time }) => {
+  const handleDateTimeSelect = async ({ date, time, snapchat, instagram }) => {
     setSelected({ date, time })
     setStep(STEPS.CONFIRMATION)
     sendNotification({
@@ -39,6 +39,8 @@ export default function App() {
       mbappeAnswer: 'Oui',
       date,
       time,
+      snapchat,
+      instagram,
     })
   }
 
@@ -62,10 +64,7 @@ export default function App() {
       )}
 
       {step === STEPS.MBAPPE && (
-        <MbappeStep
-          onResult={() => setStep(STEPS.SLOTS)}
-          onRestart={restart}
-        />
+        <MbappeStep onResult={() => setStep(STEPS.SLOTS)} onRestart={restart} />
       )}
 
       {step === STEPS.SLOTS && (
