@@ -21,9 +21,12 @@ export default function CalendarPicker({ name, onSelect }) {
   const [activeMonth, setActiveMonth] = useState(0)
   const [selectedDate, setSelectedDate] = useState(null)
   const [time, setTime] = useState('')
+  const [snap, setSnap] = useState('')
+  const [insta, setInsta] = useState('')
 
   const current = MONTHS[activeMonth]
   const cells = getMonthGrid(current.year, current.month, current.days)
+  const canConfirm = time && (snap.trim() || insta.trim())
 
   const handleDayClick = (day) => {
     const dateObj = new Date(current.year, current.month, day)
@@ -36,8 +39,13 @@ export default function CalendarPicker({ name, onSelect }) {
   }
 
   const handleConfirm = () => {
-    if (!selectedDate || !time) return
-    onSelect({ date: selectedDate.label, time })
+    if (!canConfirm) return
+    onSelect({
+      date: selectedDate.label,
+      time,
+      snapchat: snap.trim(),
+      instagram: insta.trim(),
+    })
   }
 
   return (
@@ -112,9 +120,43 @@ export default function CalendarPicker({ name, onSelect }) {
               className="mt-4 w-full rounded-full border border-rose/40 bg-white/80 px-6 py-3 text-center font-body text-lg text-ink shadow-card outline-none focus:border-gold"
             />
 
+            <p className="mt-6 text-sm text-ink/60">
+              Pour te contacter avant le date, laisse-moi ton Snap ou ton Insta
+              (au moins un des deux).
+            </p>
+
+            <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+              <div className="flex-1">
+                <label htmlFor="snap" className="sr-only">
+                  Ton Snapchat
+                </label>
+                <input
+                  id="snap"
+                  type="text"
+                  value={snap}
+                  onChange={(e) => setSnap(e.target.value)}
+                  placeholder="👻 Ton Snap"
+                  className="w-full rounded-full border border-rose/40 bg-white/80 px-6 py-3 text-center font-body text-ink shadow-card outline-none placeholder:text-ink/40 focus:border-gold"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="insta" className="sr-only">
+                  Ton Instagram
+                </label>
+                <input
+                  id="insta"
+                  type="text"
+                  value={insta}
+                  onChange={(e) => setInsta(e.target.value)}
+                  placeholder="📸 Ton Insta"
+                  className="w-full rounded-full border border-rose/40 bg-white/80 px-6 py-3 text-center font-body text-ink shadow-card outline-none placeholder:text-ink/40 focus:border-gold"
+                />
+              </div>
+            </div>
+
             <button
               onClick={handleConfirm}
-              disabled={!time}
+              disabled={!canConfirm}
               className="mt-6 w-full rounded-full bg-gradient-to-br from-rose to-rose-deep px-10 py-3 font-body text-lg font-medium text-white shadow-soft transition-all duration-200 enabled:hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Confirmer
